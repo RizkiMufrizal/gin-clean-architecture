@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"math/rand"
 	"strconv"
