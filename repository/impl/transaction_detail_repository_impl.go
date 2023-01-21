@@ -40,7 +40,7 @@ func (transactionDetailRepository *transactionDetailRepositoryImpl) FindById(ctx
 		"SELECT transaction_detail.transaction_detail_id, transaction_detail.sub_total_price, transaction_detail.price, transaction_detail.quantity, transaction_detail.transaction_id, transaction_detail.product_id, product.name, product.price, product.quantity "+
 		"FROM tb_transaction_detail transaction_detail "+
 		"INNER JOIN tb_product product ON transaction_detail.product_id = product.product_id "+
-		"where transaction_detail.transaction_detail_id = $1", id)
+		"where transaction_detail.transaction_detail_id = ?", id)
 	if err != nil {
 		return entity.TransactionDetail{}, errors.New("transaction Detail Not Found")
 	}

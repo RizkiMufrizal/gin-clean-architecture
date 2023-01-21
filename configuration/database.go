@@ -1,9 +1,12 @@
 package configuration
 
 import (
+	"database/sql"
+	"github.com/RizkiMufrizal/gin-clean-architecture/common"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	sqldblogger "github.com/simukti/sqldb-logger"
 	"math/rand"
 	"strconv"
 	"time"
@@ -20,12 +23,17 @@ func NewDatabase(config Config) *sqlx.DB {
 	maxPollLifeTime, err := strconv.Atoi(config.Get("DATASOURCE_POOL_LIFE_TIME"))
 	exception.PanicLogging(err)
 
-	db, err := sqlx.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/"+dbName+"?parseTime=true")
+	dsn := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + dbName + "?parseTime=true"
+	db, err := sql.Open("mysql", dsn)
 	exception.PanicLogging(err)
 
-	db.SetMaxOpenConns(maxPoolOpen)
-	db.SetMaxIdleConns(maxPoolIdle)
-	db.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
+	db = sqldblogger.OpenDriver(dsn, db.Driver(), common.NewLogrusAdapter(common.NewLogger()))
 
-	return db
+	sqlxDB := sqlx.NewDb(db, "mysql")
+
+	sqlxDB.SetMaxOpenConns(maxPoolOpen)
+	sqlxDB.SetMaxIdleConns(maxPoolIdle)
+	sqlxDB.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
+
+	return sqlxDB
 }

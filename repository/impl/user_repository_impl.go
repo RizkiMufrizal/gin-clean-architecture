@@ -67,10 +67,10 @@ func (userRepository *userRepositoryImpl) DeleteAll() {
 func (userRepository *userRepositoryImpl) Authentication(ctx context.Context, username string) (entity.User, error) {
 	var userResult entity.User
 	err := userRepository.DB.GetContext(ctx, &userResult, ""+
-		"SELECT username, password, is_active "+
+		"SELECT user.username, user.password, user.is_active "+
 		"FROM tb_user user "+
 		"INNER JOIN tb_user_role user_role ON user_role.username = user.username "+
-		"WHERE user.username = $1 and user.is_active = $2", username, true)
+		"WHERE user.username = ? and user.is_active = ?", username, true)
 	if err != nil {
 		return entity.User{}, errors.New("user not found")
 	}

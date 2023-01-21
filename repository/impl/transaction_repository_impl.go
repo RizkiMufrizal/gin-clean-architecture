@@ -58,7 +58,7 @@ func (transactionRepository *transactionRepositoryImpl) FindById(ctx context.Con
 		"ON transaction.transaction_id = transaction_detail.transaction_id "+
 		"INNER JOIN tb_product product "+
 		"ON transaction_detail.product_id = product.product_id "+
-		"where transaction.transaction_id = $1", id)
+		"where transaction.transaction_id = ?", id)
 	if err != nil {
 		return entity.Transaction{}, errors.New("transaction Not Found")
 	}

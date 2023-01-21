@@ -1,7 +1,9 @@
 package common
 
 import (
+	"context"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
+	sqldblogger "github.com/simukti/sqldb-logger"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -31,4 +33,29 @@ func NewLogger() *logrus.Logger {
 		logger.SetOutput(multiWriter)
 	}
 	return logger
+}
+
+type LogrusAdapter struct {
+	logger *logrus.Logger
+}
+
+func NewLogrusAdapter(logger *logrus.Logger) *LogrusAdapter {
+	return &LogrusAdapter{logger: logger}
+}
+
+func (l *LogrusAdapter) Log(ctx context.Context, level sqldblogger.Level, msg string, data map[string]interface{}) {
+	entry := l.logger.WithContext(ctx).WithFields(data)
+
+	switch level {
+	case sqldblogger.LevelError:
+		entry.Error(msg)
+	case sqldblogger.LevelInfo:
+		entry.Info(msg)
+	case sqldblogger.LevelDebug:
+		entry.Debug(msg)
+	case sqldblogger.LevelTrace:
+		entry.Trace(msg)
+	default:
+		entry.Debug(msg)
+	}
 }
