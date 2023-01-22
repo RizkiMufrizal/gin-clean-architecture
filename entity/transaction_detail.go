@@ -3,12 +3,16 @@ package entity
 import "github.com/google/uuid"
 
 type TransactionDetail struct {
-	Id            uuid.UUID   `db:"transaction_detail_id"`
-	SubTotalPrice int64       `db:"sub_total_price"`
-	Price         int64       `db:"price"`
-	Quantity      int32       `db:"quantity"`
-	Product       Product     `db:"product"`
-	Transaction   Transaction `db:"transaction"`
-	TransactionId uuid.UUID   `db:"transaction_id"`
-	ProductId     uuid.UUID   `db:"product_id"`
+	Id            uuid.UUID `gorm:"primaryKey;column:transaction_detail_id;type:varchar(36)"`
+	SubTotalPrice int64     `gorm:"column:sub_total_price"`
+	Price         int64     `gorm:"column:price"`
+	Quantity      int32     `gorm:"column:quantity"`
+	TransactionId uuid.UUID
+	ProductId     uuid.UUID
+	Product       Product
+	Transaction   Transaction
+}
+
+func (TransactionDetail) TableName() string {
+	return "tb_transaction_detail"
 }

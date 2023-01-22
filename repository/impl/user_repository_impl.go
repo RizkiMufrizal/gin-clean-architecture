@@ -7,15 +7,15 @@ import (
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
 	"github.com/RizkiMufrizal/gin-clean-architecture/repository"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
-func NewUserRepositoryImpl(DB *sqlx.DB) repository.UserRepository {
+func NewUserRepositoryImpl(DB *gorm.DB) repository.UserRepository {
 	return &userRepositoryImpl{DB: DB}
 }
 
 type userRepositoryImpl struct {
-	*sqlx.DB
+	*gorm.DB
 }
 
 func (userRepository *userRepositoryImpl) Create(username string, password string, roles []string) {
@@ -33,45 +33,23 @@ func (userRepository *userRepositoryImpl) Create(username string, password strin
 		IsActive:  true,
 		UserRoles: userRoles,
 	}
-
-	tx, err := userRepository.DB.Beginx()
-	exception.PanicLogging(err)
-
-	_, err = tx.NamedExec("INSERT INTO tb_user (username, password, is_active) VALUES(:username, :password, :is_active)", user)
-	_, err = tx.NamedExec("INSERT INTO tb_user_role (user_role_id, role, username) VALUES(:user_role_id, :role, :username)", userRoles)
-	if err != nil {
-		err := tx.Rollback()
-		exception.PanicLogging(err)
-	}
-	//commit
-	err = tx.Commit()
+	err := userRepository.DB.Create(&user).Error
 	exception.PanicLogging(err)
 }
 
 func (userRepository *userRepositoryImpl) DeleteAll() {
-	//begin transaction
-	tx, err := userRepository.DB.Beginx()
-	exception.PanicLogging(err)
-
-	_, err = tx.Exec("DELETE FROM tb_user")
-	_, err = tx.Exec("DELETE FROM tb_user_role")
-	if err != nil {
-		err := tx.Rollback()
-		exception.PanicLogging(err)
-	}
-	//commit
-	err = tx.Commit()
+	err := userRepository.DB.Where("1=1").Delete(&entity.User{}).Error
 	exception.PanicLogging(err)
 }
 
 func (userRepository *userRepositoryImpl) Authentication(ctx context.Context, username string) (entity.User, error) {
 	var userResult entity.User
-	err := userRepository.DB.GetContext(ctx, &userResult, ""+
-		"SELECT user.username, user.password, user.is_active "+
-		"FROM tb_user user "+
-		"INNER JOIN tb_user_role user_role ON user_role.username = user.username "+
-		"WHERE user.username = ? and user.is_active = ?", username, true)
-	if err != nil {
+	result := userRepository.DB.WithContext(ctx).
+		Joins("inner join tb_user_role on tb_user_role.username = tb_user.username").
+		Preload("UserRoles").
+		Where("tb_user.username = ? and tb_user.is_active = ?", username, true).
+		Find(&userResult)
+	if result.RowsAffected == 0 {
 		return entity.User{}, errors.New("user not found")
 	}
 	return userResult, nil

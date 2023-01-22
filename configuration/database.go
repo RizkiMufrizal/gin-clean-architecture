@@ -1,18 +1,18 @@
 package configuration
 
 import (
-	"database/sql"
-	"github.com/RizkiMufrizal/gin-clean-architecture/common"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
-	sqldblogger "github.com/simukti/sqldb-logger"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
 
-func NewDatabase(config Config) *sqlx.DB {
+func NewDatabase(config Config) *gorm.DB {
 	username := config.Get("DATASOURCE_USERNAME")
 	password := config.Get("DATASOURCE_PASSWORD")
 	host := config.Get("DATASOURCE_HOST")
@@ -23,17 +23,34 @@ func NewDatabase(config Config) *sqlx.DB {
 	maxPollLifeTime, err := strconv.Atoi(config.Get("DATASOURCE_POOL_LIFE_TIME"))
 	exception.PanicLogging(err)
 
-	dsn := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + dbName + "?parseTime=true"
-	db, err := sql.Open("mysql", dsn)
+	loggerDb := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  logger.Info,
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  true,
+		},
+	)
+
+	db, err := gorm.Open(mysql.Open(username+":"+password+"@tcp("+host+":"+port+")/"+dbName+"?parseTime=true"), &gorm.Config{
+		Logger: loggerDb,
+	})
 	exception.PanicLogging(err)
 
-	db = sqldblogger.OpenDriver(dsn, db.Driver(), common.NewLogrusAdapter(common.NewLogger()))
+	sqlDB, err := db.DB()
+	exception.PanicLogging(err)
 
-	sqlxDB := sqlx.NewDb(db, "mysql")
+	sqlDB.SetMaxOpenConns(maxPoolOpen)
+	sqlDB.SetMaxIdleConns(maxPoolIdle)
+	sqlDB.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
 
-	sqlxDB.SetMaxOpenConns(maxPoolOpen)
-	sqlxDB.SetMaxIdleConns(maxPoolIdle)
-	sqlxDB.SetConnMaxLifetime(time.Duration(rand.Int31n(int32(maxPollLifeTime))) * time.Millisecond)
-
-	return sqlxDB
+	//autoMigrate
+	//err = db.AutoMigrate(&entity.Product{})
+	//err = db.AutoMigrate(&entity.Transaction{})
+	//err = db.AutoMigrate(&entity.TransactionDetail{})
+	//err = db.AutoMigrate(&entity.User{})
+	//err = db.AutoMigrate(&entity.UserRole{})
+	//exception.PanicLogging(err)
+	return db
 }

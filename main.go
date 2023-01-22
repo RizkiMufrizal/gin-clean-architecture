@@ -42,7 +42,7 @@ func main() {
 
 	//service
 	productService := service.NewProductServiceImpl(&productRepository, redis)
-	transactionService := service.NewTransactionServiceImpl(&transactionRepository, &transactionDetailRepository)
+	transactionService := service.NewTransactionServiceImpl(&transactionRepository)
 	transactionDetailService := service.NewTransactionDetailServiceImpl(&transactionDetailRepository)
 	userService := service.NewUserServiceImpl(&userRepository)
 	httpBinService := service.NewHttpBinServiceImpl(&httpBinRestClient)

@@ -11,13 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewTransactionServiceImpl(transactionRepository *repository.TransactionRepository, transactionDetailRepository *repository.TransactionDetailRepository) service.TransactionService {
-	return &transactionServiceImpl{TransactionRepository: *transactionRepository, TransactionDetailRepository: *transactionDetailRepository}
+func NewTransactionServiceImpl(transactionRepository *repository.TransactionRepository) service.TransactionService {
+	return &transactionServiceImpl{TransactionRepository: *transactionRepository}
 }
 
 type transactionServiceImpl struct {
 	repository.TransactionRepository
-	repository.TransactionDetailRepository
 }
 
 func (transactionService *transactionServiceImpl) Create(ctx context.Context, transactionModel model.TransactionCreateUpdateModel) model.TransactionCreateUpdateModel {
@@ -45,7 +44,6 @@ func (transactionService *transactionServiceImpl) Create(ctx context.Context, tr
 	}
 
 	transactionService.TransactionRepository.Insert(ctx, transaction)
-	transactionService.TransactionDetailRepository.Insert(ctx, transactionDetails)
 	return transactionModel
 }
 
