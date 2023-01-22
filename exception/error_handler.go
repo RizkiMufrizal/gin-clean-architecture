@@ -14,7 +14,7 @@ func ErrorHandler(c *gin.Context, err any) {
 
 		errJson := json.Unmarshal([]byte(data), &messages)
 		PanicLogging(errJson)
-		c.JSON(400, model.GeneralResponse{
+		c.AbortWithStatusJSON(400, model.GeneralResponse{
 			Code:    400,
 			Message: "Bad Request",
 			Data:    messages,
@@ -24,7 +24,7 @@ func ErrorHandler(c *gin.Context, err any) {
 
 	notFoundErrorResult, notFoundError := err.(NotFoundError)
 	if notFoundError {
-		c.JSON(404, model.GeneralResponse{
+		c.AbortWithStatusJSON(404, model.GeneralResponse{
 			Code:    404,
 			Message: "Not Found",
 			Data:    notFoundErrorResult.Message,
@@ -34,7 +34,7 @@ func ErrorHandler(c *gin.Context, err any) {
 
 	UnauthorizedErrorResult, unauthorizedError := err.(UnauthorizedError)
 	if unauthorizedError {
-		c.JSON(401, model.GeneralResponse{
+		c.AbortWithStatusJSON(401, model.GeneralResponse{
 			Code:    401,
 			Message: "Unauthorized",
 			Data:    UnauthorizedErrorResult.Message,
@@ -42,7 +42,7 @@ func ErrorHandler(c *gin.Context, err any) {
 		return
 	}
 
-	c.JSON(500, model.GeneralResponse{
+	c.AbortWithStatusJSON(500, model.GeneralResponse{
 		Code:    500,
 		Message: "General Error",
 		Data:    err,
