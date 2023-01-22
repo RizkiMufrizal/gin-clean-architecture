@@ -13,12 +13,12 @@ This project was created to learn golang with gin framework
 - [x] Database sqlx
 - [x] Database Relational
 - [x] Json Validation
-- [ ] JWT Security
+- [x] JWT Security
 - [x] Database migration
 - [x] Docker Support
 - [ ] Open API / Swagger
 - [x] Integration Test
 - [x] Http Client
-- [ ] Error Handling
+- [x] Error Handling
 - [x] Logging
 - [x] Cache

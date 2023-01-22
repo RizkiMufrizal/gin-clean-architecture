@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"github.com/RizkiMufrizal/gin-clean-architecture/common"
 	"github.com/RizkiMufrizal/gin-clean-architecture/configuration"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
 	"github.com/RizkiMufrizal/gin-clean-architecture/model"
 	"github.com/RizkiMufrizal/gin-clean-architecture/service"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func NewUserController(userService *service.UserService, config configuration.Config) *UserController {
@@ -42,9 +44,14 @@ func (controller UserController) Authentication(c *gin.Context) {
 			"role": userRole.Role,
 		})
 	}
-	//tokenJwtResult := common.GenerateToken(result.Username, userRoles, controller.Config)
+
+	jwtSecret := controller.Config.Get("JWT_SECRET_KEY")
+	jwtExpired, err := strconv.Atoi(controller.Config.Get("JWT_EXPIRE_MINUTES_COUNT"))
+	exception.PanicLogging(err)
+
+	tokenJwtResult := common.GenerateToken(result.Username, userRoles, jwtSecret, jwtExpired)
 	resultWithToken := map[string]interface{}{
-		//"token":    tokenJwtResult,
+		"token":    tokenJwtResult,
 		"username": result.Username,
 		"role":     userRoles,
 	}

@@ -57,6 +57,7 @@ func main() {
 	//setup fiber
 	gin.SetMode(gin.DebugMode)
 	app := gin.Default()
+	app.Use(gin.CustomRecovery(exception.ErrorHandler))
 
 	//routing
 	productController.Route(app)
