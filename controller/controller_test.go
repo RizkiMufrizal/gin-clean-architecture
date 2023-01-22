@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/RizkiMufrizal/gin-clean-architecture/configuration"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
+	"github.com/RizkiMufrizal/gin-clean-architecture/middleware"
 	"github.com/RizkiMufrizal/gin-clean-architecture/model"
 	repository "github.com/RizkiMufrizal/gin-clean-architecture/repository/impl"
 	service "github.com/RizkiMufrizal/gin-clean-architecture/service/impl"
@@ -19,6 +20,7 @@ func createTestApp() *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	app := gin.Default()
 	app.Use(gin.CustomRecovery(exception.ErrorHandler))
+	app.Use(middleware.CORSMiddleware())
 
 	//routing
 	productController.Route(app)

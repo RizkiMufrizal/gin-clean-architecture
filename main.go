@@ -5,6 +5,7 @@ import (
 	"github.com/RizkiMufrizal/gin-clean-architecture/configuration"
 	"github.com/RizkiMufrizal/gin-clean-architecture/controller"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
+	"github.com/RizkiMufrizal/gin-clean-architecture/middleware"
 	repository "github.com/RizkiMufrizal/gin-clean-architecture/repository/impl"
 	service "github.com/RizkiMufrizal/gin-clean-architecture/service/impl"
 	"github.com/gin-gonic/gin"
@@ -58,6 +59,7 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	app := gin.Default()
 	app.Use(gin.CustomRecovery(exception.ErrorHandler))
+	app.Use(middleware.CORSMiddleware())
 
 	//routing
 	productController.Route(app)
