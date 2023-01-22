@@ -10,7 +10,7 @@ This project was created to learn golang with gin framework
 
 ## Feature
 
-- [x] Database sqlx
+- [x] Database ORM
 - [x] Database Relational
 - [x] Json Validation
 - [x] JWT Security
