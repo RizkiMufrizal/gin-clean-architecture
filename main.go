@@ -4,19 +4,22 @@ import (
 	"github.com/RizkiMufrizal/gin-clean-architecture/client/restclient"
 	"github.com/RizkiMufrizal/gin-clean-architecture/configuration"
 	"github.com/RizkiMufrizal/gin-clean-architecture/controller"
+	_ "github.com/RizkiMufrizal/gin-clean-architecture/docs"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
 	"github.com/RizkiMufrizal/gin-clean-architecture/middleware"
 	repository "github.com/RizkiMufrizal/gin-clean-architecture/repository/impl"
 	service "github.com/RizkiMufrizal/gin-clean-architecture/service/impl"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Go Fiber Clean Architecture
+// @title Gin Clean Architecture
 // @version 1.0.0
-// @description Baseline project using Go Fiber
+// @description Baseline project using Gin
 // @termsOfService http://swagger.io/terms/
 // @contact.name API Support
-// @contact.email fiber@swagger.io
+// @contact.email gin@swagger.io
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:9999
@@ -69,7 +72,7 @@ func main() {
 	httpBinController.Route(app)
 
 	//swagger
-	//app.Get("/swagger/*", swagger.HandlerDefault)
+	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	//start app
 	err := app.Run(config.Get("SERVER.PORT"))
