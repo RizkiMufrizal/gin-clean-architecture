@@ -15,7 +15,7 @@ func AuthenticateJWT(role string, config configuration.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.GetHeader("Authorization")
 		if !strings.Contains(authorizationHeader, "Bearer") {
-			c.JSON(400, model.GeneralResponse{
+			c.AbortWithStatusJSON(400, model.GeneralResponse{
 				Code:    400,
 				Message: "Bad Request",
 				Data:    "Missing or malformed JWT",
@@ -29,10 +29,10 @@ func AuthenticateJWT(role string, config configuration.Config) gin.HandlerFunc {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
-			return jwtSecret, nil
+			return []byte(jwtSecret), nil
 		})
 		if err != nil {
-			c.JSON(400, model.GeneralResponse{
+			c.AbortWithStatusJSON(400, model.GeneralResponse{
 				Code:    400,
 				Message: "Bad Request",
 				Data:    "Missing or malformed JWT",
@@ -51,14 +51,14 @@ func AuthenticateJWT(role string, config configuration.Config) gin.HandlerFunc {
 				}
 			}
 
-			c.JSON(401, model.GeneralResponse{
+			c.AbortWithStatusJSON(401, model.GeneralResponse{
 				Code:    401,
 				Message: "Unauthorized",
 				Data:    "Invalid Role",
 			})
 			return
 		} else {
-			c.JSON(401, model.GeneralResponse{
+			c.AbortWithStatusJSON(401, model.GeneralResponse{
 				Code:    401,
 				Message: "Unauthorized",
 				Data:    "Invalid or expired JWT",

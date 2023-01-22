@@ -17,7 +17,7 @@ This project was created to learn golang with gin framework
 - [x] Database migration
 - [x] Docker Support
 - [ ] Open API / Swagger
-- [x] Integration Test
+- [ ] Integration Test
 - [x] Http Client
 - [x] Error Handling
 - [x] Logging
