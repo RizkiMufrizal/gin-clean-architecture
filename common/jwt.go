@@ -1,12 +1,17 @@
 package common
 
 import (
+	"github.com/RizkiMufrizal/gin-clean-architecture/configuration"
 	"github.com/RizkiMufrizal/gin-clean-architecture/exception"
 	"github.com/golang-jwt/jwt/v4"
+	"strconv"
 	"time"
 )
 
-func GenerateToken(username string, roles []map[string]interface{}, jwtSecret string, jwtExpired int) string {
+func GenerateToken(username string, roles []map[string]interface{}, config configuration.Config) string {
+	jwtSecret := config.Get("JWT_SECRET_KEY")
+	jwtExpired, err := strconv.Atoi(config.Get("JWT_EXPIRE_MINUTES_COUNT"))
+	exception.PanicLogging(err)
 	claims := jwt.MapClaims{
 		"username": username,
 		"roles":    roles,
